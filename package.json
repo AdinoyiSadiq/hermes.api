@@ -1,0 +1,41 @@
+{
+  "name": "hermes.api",
+  "version": "1.0.0",
+  "description": "The backend api for the hermes application",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon --exec babel-node src/server.js",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AdinoyiSadiq/hermes.api.git"
+  },
+  "author": "Adinoyi Sadiq",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AdinoyiSadiq/hermes.api/issues"
+  },
+  "homepage": "https://github.com/AdinoyiSadiq/hermes.api#readme",
+  "dependencies": {
+    "@babel/runtime": "^7.6.3",
+    "apollo-server-express": "^2.9.7",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "graphql": "^14.5.8",
+    "pg": "^7.12.1",
+    "sequelize": "^5.21.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.6.4",
+    "@babel/core": "^7.6.4",
+    "@babel/node": "^7.6.3",
+    "@babel/plugin-transform-runtime": "^7.6.2",
+    "@babel/preset-env": "^7.6.3",
+    "eslint": "^6.5.1",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2",
+    "jest": "^24.9.0",
+    "nodemon": "^1.19.4"
+  }
+}
