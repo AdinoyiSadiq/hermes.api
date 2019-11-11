@@ -1,0 +1,56 @@
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+import models from '../models';
+import validate from '../middleware/validation';
+
+dotenv.config();
+
+class User {
+  constructor() {
+    this.userModel = models.user;
+  }
+
+  async signin(userDetails) {
+    validate('signin', userDetails);
+    const { email, password } = userDetails;
+    const user = await this.userModel.findOne({ where: { email } });
+
+    if (!user) {
+      const error = new Error('the account with this email does not exist');
+      error.code = 401;
+      throw error;
+    }
+    const isEqual = await bcrypt.compare(password, user.password);
+    if (!isEqual) {
+      const error = new Error('Password is incorrect');
+      error.code = 401;
+      throw error;
+    }
+    const token = jwt.sign({ userId: user.id }, process.env.SESSION_SECRET, { expiresIn: '1h' });
+    return {
+      token,
+      userId: user.id,
+    };
+  }
+
+  async signup(userDetails) {
+    validate('signup', userDetails);
+    const { username, email, password } = userDetails;
+    const existingUser = await this.userModel.findOne({ where: { email } });
+    if (existingUser) {
+      const error = new Error('user with this email already exits');
+      error.code = 409;
+      throw error;
+    }
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const user = await this.userModel.create({ username, email, password: hashedPassword });
+    const token = jwt.sign({ userId: user.id }, process.env.SESSION_SECRET, { expiresIn: '1h' });
+    return {
+      token,
+      userId: user.id,
+    };
+  }
+}
+
+export default User;
