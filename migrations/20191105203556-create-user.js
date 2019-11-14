@@ -17,7 +17,7 @@ module.exports = {
       password: {
         type: Sequelize.STRING
       },
-      lastseen: {
+      lastSeen: {
         type: Sequelize.DATE
       },
       createdAt: {

@@ -4,8 +4,10 @@
   "description": "The backend api for the hermes application",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon --exec babel-node src/server.js",
-    "test": "jest"
+    "start": "nodemon --exec babel-node server.js",
+    "test": "cross-env NODE_ENV=test jest --testTimeout=10000",
+    "test-migrate": "cross-env NODE_ENV=test sequelize db:migrate",
+    "undo-test-migrate": "cross-env NODE_ENV=test sequelize db:migrate:undo:all"
   },
   "repository": {
     "type": "git",
@@ -20,22 +22,35 @@
   "dependencies": {
     "@babel/runtime": "^7.6.3",
     "apollo-server-express": "^2.9.7",
+    "bcrypt": "^3.0.6",
     "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "graphql": "^14.5.8",
+    "jsonwebtoken": "^8.5.1",
+    "merge-graphql-schemas": "^1.7.3",
+    "morgan": "^1.9.1",
     "pg": "^7.12.1",
-    "sequelize": "^5.21.1"
+    "sequelize": "^5.21.1",
+    "validator": "^12.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.4",
     "@babel/core": "^7.6.4",
     "@babel/node": "^7.6.3",
+    "@babel/plugin-proposal-decorators": "^7.7.0",
     "@babel/plugin-transform-runtime": "^7.6.2",
     "@babel/preset-env": "^7.6.3",
-    "eslint": "^6.5.1",
+    "babel-eslint": "^10.0.3",
+    "babel-jest": "^24.9.0",
+    "cross-env": "^6.0.3",
+    "eslint": "^6.6.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-import": "^2.18.2",
     "jest": "^24.9.0",
-    "nodemon": "^1.19.4"
+    "nodemon": "^1.19.4",
+    "sequelize-cli": "^5.5.1",
+    "supertest": "^4.0.2"
   }
 }
