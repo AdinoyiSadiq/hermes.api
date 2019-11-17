@@ -1,12 +1,30 @@
 import validator from 'validator';
 
 const inputValidators = {
-  signup({ username, email, password }) {
+  signup(userDetails) {
     const errors = [];
     if (
-      validator.isEmpty(username)
-      || !validator.isAlphanumeric(username)
-      || !validator.isLength(username, { min: 3 })
+      validator.isEmpty(userDetails.firstname)
+      || !validator.isAlphanumeric(userDetails.firstname)
+    ) {
+      errors.push({
+        field: 'firstname',
+        message: 'please enter a valid firstname',
+      });
+    }
+    if (
+      validator.isEmpty(userDetails.lastname)
+      || !validator.isAlphanumeric(userDetails.lastname)
+    ) {
+      errors.push({
+        field: 'lastname',
+        message: 'please enter a valid lastname',
+      });
+    }
+    if (
+      validator.isEmpty(userDetails.username)
+      || !validator.isAlphanumeric(userDetails.username)
+      || !validator.isLength(userDetails.username, { min: 3 })
     ) {
       errors.push({
         field: 'username',
@@ -14,8 +32,8 @@ const inputValidators = {
       });
     }
     if (
-      validator.isEmpty(email)
-      || !validator.isEmail(email)
+      validator.isEmpty(userDetails.email)
+      || !validator.isEmail(userDetails.email)
     ) {
       errors.push({
         field: 'email',
@@ -23,12 +41,18 @@ const inputValidators = {
       });
     }
     if (
-      validator.isEmpty(password)
-      || !validator.isLength(password, { min: 8 })
+      validator.isEmpty(userDetails.password)
+      || !validator.isLength(userDetails.password, { min: 8 })
     ) {
       errors.push({
         field: 'password',
         message: 'password should be greater than 8 charaters long',
+      });
+    }
+    if (validator.isEmpty(userDetails.location)) {
+      errors.push({
+        field: 'location',
+        message: 'enter a valid location',
       });
     }
     return errors;
