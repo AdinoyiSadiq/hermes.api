@@ -11,6 +11,11 @@ class User {
     this.userModel = models.user;
   }
 
+  async getSingleUser(userId) {
+    const user = await this.userModel.findOne({ where: { id: userId } });
+    return user;
+  }
+
   async signin(userDetails) {
     const { email, password } = userDetails;
     const user = await this.userModel.findOne({ where: { email } });
