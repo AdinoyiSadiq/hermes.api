@@ -1,4 +1,7 @@
+import { Op } from 'sequelize';
 import models from '../models';
+import ActiveUserController from './activeuserController';
+
 
 class Message {
   constructor() {
@@ -22,6 +25,8 @@ class Message {
       }
       newMessage.quote = true;
     }
+    const activeuserController = new ActiveUserController();
+    await activeuserController.createActiveUser(senderId, receiverId);
     const message = await this.messageModel.create(newMessage);
     return message;
   }
@@ -56,6 +61,8 @@ class Message {
   }
 
   async getMessages({ senderId, receiverId }) {
+    // NOTE: Enable users to get messages where they are
+    // either the sender or receiver for a particular user
     const messages = await this.messageModel.findAll({ where: { senderId, receiverId }, order: [['createdAt']] });
     return messages;
   }
@@ -74,6 +81,34 @@ class Message {
     }
     await message.destroy(messageId);
     return true;
+  }
+
+  async getLastMessage({ userOneId, userTwoId }) {
+    const lastMessage = await this.messageModel.findOne({
+      limit: 1,
+      where: {
+        [Op.or]: [
+          {
+            senderId: {
+              [Op.eq]: userOneId,
+            },
+            receiverId: {
+              [Op.eq]: userTwoId,
+            },
+          },
+          {
+            senderId: {
+              [Op.eq]: userTwoId,
+            },
+            receiverId: {
+              [Op.eq]: userOneId,
+            },
+          },
+        ],
+      },
+      order: [['createdAt', 'DESC']],
+    });
+    return lastMessage;
   }
 }
 

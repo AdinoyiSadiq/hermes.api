@@ -8,6 +8,8 @@ const typeDefs = gql`
     sender: User!
     receiver: User
     quote: [Message]!
+    createdAt: String!
+    updatedAt: String!
   }
 
   type Query {

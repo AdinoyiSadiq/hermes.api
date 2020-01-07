@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import moment from 'moment';
 import models from '../models';
 import ProfileController from './profileController';
 
@@ -9,11 +10,47 @@ dotenv.config();
 class User {
   constructor() {
     this.userModel = models.user;
+    this.profileModel = models.profile;
   }
 
   async getSingleUser(userId) {
     const user = await this.userModel.findOne({ where: { id: userId } });
-    return user;
+
+    if (!user) {
+      const error = new Error('this user does not exist');
+      error.code = 401;
+      throw error;
+    }
+    // Note: Ensure that a Date type is created to handle lastseen for the user object
+    const lastseen = moment(user.lastseen, 'YYYY-MM-DD HH:mm:ss').format();
+    return {
+      id: user.id,
+      username: user.username,
+      firstname: user.firstname,
+      lastname: user.lastname,
+      lastseen,
+    };
+  }
+
+  async updateUser(userDetails) {
+    const {
+      username, firstname, lastname, user: { userId },
+    } = userDetails;
+    const user = await this.userModel.findOne({ where: { id: userId } });
+
+    if (!user) {
+      const error = new Error('this user does not exist');
+      error.code = 401;
+      throw error;
+    }
+
+    const updatedUser = await user.update({
+      username: username || user.username,
+      firstname: firstname || user.firstname,
+      lastname: lastname || user.lastname,
+    });
+
+    return updatedUser;
   }
 
   async signin(userDetails) {
@@ -31,7 +68,7 @@ class User {
       error.code = 401;
       throw error;
     }
-    const token = jwt.sign({ userId: user.id }, process.env.SESSION_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user.id }, process.env.SESSION_SECRET, { expiresIn: '24h' });
     return {
       token,
       userId: user.id,
@@ -48,19 +85,19 @@ class User {
     const hashedPassword = await bcrypt.hash(userDetails.password, 12);
     const user = await this.userModel.create({
       username: userDetails.username,
+      firstname: userDetails.firstname,
+      lastname: userDetails.lastname,
       email: userDetails.email,
       password: hashedPassword,
     });
     if (user) {
       const profileController = new ProfileController();
       profileController.createProfile({
-        firstname: userDetails.firstname,
-        lastname: userDetails.lastname,
         location: userDetails.location,
         userId: user.id,
       });
     }
-    const token = jwt.sign({ userId: user.id }, process.env.SESSION_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user.id }, process.env.SESSION_SECRET, { expiresIn: '24h' });
     return {
       token,
       userId: user.id,

@@ -97,9 +97,16 @@ class Contact {
     }
     const contactRequest = await this.contactModel.findOne({
       where: {
-        userOneId: requesterId,
-        userTwoId: receiverId,
-        status: 0,
+        [Op.or]: [
+          {
+            userOneId: requesterId,
+            userTwoId: receiverId,
+          },
+          {
+            userOneId: receiverId,
+            userTwoId: requesterId,
+          },
+        ],
       },
     });
 
@@ -110,7 +117,7 @@ class Contact {
     }
     await contactRequest.update({
       status: 3,
-      actionUserId: receiverId,
+      actionUserId: requesterId,
     });
     return true;
   }
@@ -140,6 +147,68 @@ class Contact {
           },
         ],
       },
+      include: [
+        {
+          model: this.userModel,
+          as: 'userOne',
+        },
+        {
+          model: this.userModel,
+          as: 'userTwo',
+        },
+      ],
+    });
+    return [...contacts];
+  }
+
+  async searchContacts({ userId, searchTerm }) {
+    const user = await this.userModel.findOne({ where: { id: userId } });
+
+    if (!user) {
+      const error = new Error('the user does not exist');
+      error.code = 404;
+      throw error;
+    }
+
+    if (!searchTerm) {
+      const error = new Error('please provide a search term');
+      error.code = 400;
+      throw error;
+    }
+
+    const contacts = await this.contactModel.findAll({
+      where: {
+        [Op.or]: [
+          {
+            userTwoId: { [Op.eq]: userId },
+            [Op.or]: [
+              { '$userOne.username$': { [Op.iLike]: `%${searchTerm}%` } },
+              models.Sequelize.where(models.Sequelize.fn('concat', models.Sequelize.col('userOne.firstname'), ' ', models.Sequelize.col('userOne.lastname')), {
+                [Op.iLike]: `%${searchTerm}%`,
+              }),
+            ],
+          },
+          {
+            userOneId: { [Op.eq]: userId },
+            [Op.or]: [
+              { '$userTwo.username$': { [Op.iLike]: `%${searchTerm}%` } },
+              models.Sequelize.where(models.Sequelize.fn('concat', models.Sequelize.col('userTwo.firstname'), ' ', models.Sequelize.col('userTwo.lastname')), {
+                [Op.iLike]: `%${searchTerm}%`,
+              }),
+            ],
+          },
+        ],
+      },
+      include: [
+        {
+          model: this.userModel,
+          as: 'userOne',
+        },
+        {
+          model: this.userModel,
+          as: 'userTwo',
+        },
+      ],
     });
     return [...contacts];
   }

@@ -10,6 +10,7 @@ const typeDefs = gql`
   type Query {
     getAllContacts: [Contact]!
     getAllBlockedContacts: [Contact]!
+    searchContacts(searchTerm: String!): [Contact]!
   }
 
   type Mutation {

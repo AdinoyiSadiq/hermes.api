@@ -15,6 +15,24 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
     },
+    firstname: {
+      type: DataTypes.STRING,
+      validate: {
+        isAlphanumeric: {
+          args: true,
+          msg: 'the first name can only contain letters and numbers',
+        },
+      },
+    },
+    lastname: {
+      type: DataTypes.STRING,
+      validate: {
+        isAlphanumeric: {
+          args: true,
+          msg: 'the first name can only contain letters and numbers',
+        },
+      },
+    },
     email: {
       type: DataTypes.STRING,
       unique: true,
@@ -36,7 +54,7 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
     },
-    lastSeen: {
+    lastseen: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },

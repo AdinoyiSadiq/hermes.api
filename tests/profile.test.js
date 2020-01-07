@@ -24,8 +24,6 @@ describe('profile controller', () => {
     // create user profile
     const profileController = new ProfileController();
     const profile = await profileController.createProfile({
-      firstname: 'firstname',
-      lastname: 'lastname',
       location: 'location',
       userId,
     });
@@ -37,14 +35,10 @@ describe('profile controller', () => {
 
     // update user profile
     const updatedProfile = await profileController.updateProfile({
-      firstname: 'updatedFirstname',
-      lastname: 'updatedLastname',
       location: 'updatedLocation',
       user: { userId },
     });
 
-    expect(updatedProfile.firstname).toEqual('updatedFirstname');
-    expect(updatedProfile.lastname).toEqual('updatedLastname');
     expect(updatedProfile.location).toEqual('updatedLocation');
     done();
   });

@@ -1,3 +1,4 @@
+import moment from 'moment';
 import MessageController from '../controllers/messageController';
 import UserController from '../controllers/userController';
 import { isAuth } from '../middleware/authentication';
@@ -16,6 +17,8 @@ const resolvers = {
       const messageController = new MessageController();
       return messageController.getMessage({ messageId: parent.quoteId, quote: true });
     },
+    createdAt: (parent) => moment(parent.createdAt, 'YYYY-MM-DD HH:mm:ss').format(),
+    updatedAt: (parent) => moment(parent.updatedAt, 'YYYY-MM-DD HH:mm:ss').format(),
   },
   Query: {
     getMessages: (parent, { receiverId }, { user }) => {

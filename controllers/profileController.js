@@ -22,8 +22,6 @@ class Profile {
 
   async updateProfile(profileDetails) {
     const {
-      firstname,
-      lastname,
       location,
       user: { userId },
     } = profileDetails;
@@ -34,8 +32,6 @@ class Profile {
       throw error;
     }
     const updatedProfile = await userProfile.update({
-      firstname: firstname || userProfile.firstname,
-      lastname: lastname || userProfile.lastname,
       location: location || userProfile.location,
     });
     return updatedProfile;
