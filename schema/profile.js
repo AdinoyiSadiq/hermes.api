@@ -3,6 +3,7 @@ import { gql } from 'apollo-server-express';
 const typeDefs = gql`
   type Profile {
     id: Int!
+    username: String!
     firstname: String!
     lastname: String!
     location: String!
@@ -15,6 +16,7 @@ const typeDefs = gql`
 
   type Mutation {
     updateProfile(
+      username: String
       firstname: String
       lastname: String
       location: String

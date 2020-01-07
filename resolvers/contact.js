@@ -1,14 +1,20 @@
+import moment from 'moment';
 import ContactController from '../controllers/contactController';
-import UserController from '../controllers/userController';
 import { isAuth } from '../middleware/authentication';
 
 const resolvers = {
   Contact: {
     user: (parent, args, { user }) => {
-      const { userOneId, userTwoId } = parent;
-      const userController = new UserController();
-      const id = (user.userId === userOneId) ? userTwoId : userOneId;
-      return userController.getSingleUser(id);
+      const { userOneId, userOne, userTwo } = parent;
+      const userDetails = (user.userId === userOneId) ? userTwo : userOne;
+      const lastseen = moment(userDetails.lastseen, 'YYYY-MM-DD HH:mm:ss').format();
+      return {
+        id: userDetails.id,
+        username: userDetails.username,
+        firstname: userDetails.firstname,
+        lastname: userDetails.lastname,
+        lastseen,
+      };
     },
   },
   Query: {
@@ -21,6 +27,11 @@ const resolvers = {
       isAuth(user);
       const contactController = new ContactController();
       return contactController.getAllContacts({ userId: user.userId, status: 3 });
+    },
+    searchContacts: (parent, { searchTerm }, { user }) => {
+      isAuth(user);
+      const contactController = new ContactController();
+      return contactController.searchContacts({ userId: user.userId, searchTerm });
     },
   },
   Mutation: {

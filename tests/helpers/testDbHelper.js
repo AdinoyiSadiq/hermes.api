@@ -1,11 +1,14 @@
 import db from '../../models';
 
-const { user, profile } = db;
+const { user, profile, message, contact, activeuser } = db;
 
 module.exports = {
   async resetDB() {
-    await user.destroy({ truncate: true, cascade: true });
+    await activeuser.destroy({ truncate: true, cascade: true });
+    await message.destroy({ truncate: true, cascade: true });
+    await contact.destroy({ truncate: true, cascade: true });
     await profile.destroy({ truncate: true, cascade: true });
+    await user.destroy({ truncate: true, cascade: true });
   },
 
   async closeDbConnection() {

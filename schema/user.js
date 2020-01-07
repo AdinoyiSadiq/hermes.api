@@ -3,9 +3,11 @@ import { gql } from 'apollo-server-express';
 const typeDefs = gql`
   type User {
     id: Int!
+    firstname: String!
+    lastname: String! 
     username: String!
     email: String!
-    lastseen: Int!
+    lastseen: String!
   }
 
   type AuthUser {

@@ -1,18 +1,18 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('profiles', {
+    return queryInterface.createTable('activeusers', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      location: {
-        type: Sequelize.STRING
+      userOneStatus: {
+        type: Sequelize.INTEGER
       },
-      profileImage: {
-        type: Sequelize.STRING
+      userTwoStatus: {
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,
@@ -25,6 +25,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('profiles');
+    return queryInterface.dropTable('activeusers');
   }
 };
