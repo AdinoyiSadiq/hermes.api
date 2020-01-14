@@ -8,13 +8,16 @@ const resolvers = {
       isAuth(user);
       const profileController = new ProfileController();
       const userController = new UserController();
-      const userDetails = await userController.getSingleUser(userId);
-      const profileDetails = await profileController.getProfile(userId);
+      const id = userId || user.userId;
+      const userDetails = await userController.getSingleUser(id);
+      const profileDetails = await profileController.getProfile(id);
       return {
         id: userId,
         username: userDetails.username,
         firstname: userDetails.firstname,
         lastname: userDetails.lastname,
+        email: userDetails.email,
+        profileImage: profileDetails.profileImage,
         location: profileDetails.location,
       };
     },
@@ -28,9 +31,11 @@ const resolvers = {
         username: profileDetails.username,
         firstname: profileDetails.firstname,
         lastname: profileDetails.lastname,
+        email: profileDetails.email,
         user,
       });
       const updatedProfile = await profileController.updateProfile({
+        profileImage: profileDetails.profileImage,
         location: profileDetails.location,
         user,
       });
@@ -39,6 +44,8 @@ const resolvers = {
         username: updateUser.username,
         firstname: updateUser.firstname,
         lastname: updateUser.lastname,
+        email: updateUser.email,
+        profileImage: updatedProfile.profileImage,
         location: updatedProfile.location,
       };
     },

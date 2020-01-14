@@ -28,13 +28,14 @@ class User {
       username: user.username,
       firstname: user.firstname,
       lastname: user.lastname,
+      email: user.email,
       lastseen,
     };
   }
 
   async updateUser(userDetails) {
     const {
-      username, firstname, lastname, user: { userId },
+      username, firstname, lastname, email, user: { userId },
     } = userDetails;
     const user = await this.userModel.findOne({ where: { id: userId } });
 
@@ -48,6 +49,7 @@ class User {
       username: username || user.username,
       firstname: firstname || user.firstname,
       lastname: lastname || user.lastname,
+      email: email || user.email,
     });
 
     return updatedUser;

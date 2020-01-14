@@ -23,6 +23,7 @@ class Profile {
   async updateProfile(profileDetails) {
     const {
       location,
+      profileImage,
       user: { userId },
     } = profileDetails;
     const userProfile = await this.profileModel.findOne({ where: { userId } });
@@ -32,6 +33,7 @@ class Profile {
       throw error;
     }
     const updatedProfile = await userProfile.update({
+      profileImage: profileImage || userProfile.profileImage,
       location: location || userProfile.location,
     });
     return updatedProfile;
