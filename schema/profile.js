@@ -6,12 +6,13 @@ const typeDefs = gql`
     username: String!
     firstname: String!
     lastname: String!
+    email: String!
     location: String!
     profileImage: String
   }
 
   type Query {
-    getProfile(userId: Int!): Profile!
+    getProfile(userId: Int): Profile!
   }
 
   type Mutation {
@@ -19,6 +20,8 @@ const typeDefs = gql`
       username: String
       firstname: String
       lastname: String
+      email: String
+      profileImage: String
       location: String
     ): Profile!
   }
