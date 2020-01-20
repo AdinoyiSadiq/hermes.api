@@ -38,6 +38,16 @@ class Profile {
     });
     return updatedProfile;
   }
+
+  async getProfileImage(userId) {
+    const userProfile = await this.profileModel.findOne({ where: { userId } });
+    if (!userProfile) {
+      const error = new Error('user profile does not exist');
+      error.code = 409;
+      throw error;
+    }
+    return { profileImage: userProfile.profileImage };
+  }
 }
 
 export default Profile;

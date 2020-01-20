@@ -4,6 +4,7 @@ const typeDefs = gql`
   type ActiveUser {
     id: Int!
     user: User!
+    profileImage: String
     lastMessage: Message
   }
 

@@ -17,6 +17,7 @@ const typeDefs = gql`
 
   type Query {
     signin(email: String!, password: String!): AuthUser!
+    getAuthUser: User!
   }
 
   type Mutation {

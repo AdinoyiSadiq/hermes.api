@@ -13,7 +13,7 @@ const typeDefs = gql`
   }
 
   type Query {
-    getMessages(receiverId: Int!): [Message]!
+    getMessages(offset: Int, receiverId: Int!): [Message]!
   }
 
   type Mutation {

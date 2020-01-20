@@ -1,5 +1,6 @@
 import moment from 'moment';
 import ContactController from '../controllers/contactController';
+import ProfileController from '../controllers/profileController';
 import { isAuth } from '../middleware/authentication';
 
 const resolvers = {
@@ -15,6 +16,13 @@ const resolvers = {
         lastname: userDetails.lastname,
         lastseen,
       };
+    },
+    profileImage: async (parent, args, { user }) => {
+      const { userOneId, userOne, userTwo } = parent;
+      const userDetails = (user.userId === userOneId) ? userTwo : userOne;
+      const profileController = new ProfileController();
+      const { profileImage } = await profileController.getProfileImage(userDetails.id);
+      return profileImage;
     },
   },
   Query: {

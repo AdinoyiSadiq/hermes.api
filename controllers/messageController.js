@@ -60,10 +60,32 @@ class Message {
     return [message];
   }
 
-  async getMessages({ senderId, receiverId }) {
-    // NOTE: Enable users to get messages where they are
-    // either the sender or receiver for a particular user
-    const messages = await this.messageModel.findAll({ where: { senderId, receiverId }, order: [['createdAt']] });
+  async getMessages({ senderId, receiverId, offset }) {
+    const messages = await this.messageModel.findAll({
+      where: {
+        [Op.or]: [
+          {
+            senderId: {
+              [Op.eq]: senderId,
+            },
+            receiverId: {
+              [Op.eq]: receiverId,
+            },
+          },
+          {
+            senderId: {
+              [Op.eq]: receiverId,
+            },
+            receiverId: {
+              [Op.eq]: senderId,
+            },
+          },
+        ],
+      },
+      limit: 15,
+      offset,
+      order: [['createdAt', 'DESC']],
+    });
     return messages;
   }
 
