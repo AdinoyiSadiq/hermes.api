@@ -4,6 +4,7 @@ const typeDefs = gql`
   type Contact {
     id: Int!
     status: Int!
+    profileImage: String
     user: User!
   }
 

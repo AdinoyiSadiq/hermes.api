@@ -21,10 +21,10 @@ const resolvers = {
     updatedAt: (parent) => moment(parent.updatedAt, 'YYYY-MM-DD HH:mm:ss').format(),
   },
   Query: {
-    getMessages: (parent, { receiverId }, { user }) => {
+    getMessages: (parent, { receiverId, offset }, { user }) => {
       isAuth(user);
       const messageController = new MessageController();
-      return messageController.getMessages({ receiverId, senderId: user.userId });
+      return messageController.getMessages({ receiverId, senderId: user.userId, offset });
     },
   },
   Mutation: {
