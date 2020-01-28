@@ -1,7 +1,11 @@
-import moment from 'moment';
+import { PubSub, withFilter } from 'apollo-server-express';
 import MessageController from '../controllers/messageController';
 import UserController from '../controllers/userController';
 import { isAuth } from '../middleware/authentication';
+
+
+const pubsub = new PubSub();
+const MESSAGE = 'MESSAGE';
 
 const resolvers = {
   Message: {
@@ -17,8 +21,17 @@ const resolvers = {
       const messageController = new MessageController();
       return messageController.getMessage({ messageId: parent.quoteId, quote: true });
     },
-    createdAt: (parent) => moment(parent.createdAt, 'YYYY-MM-DD HH:mm:ss').format(),
-    updatedAt: (parent) => moment(parent.updatedAt, 'YYYY-MM-DD HH:mm:ss').format(),
+  },
+  Subscription: {
+    // is it possible to authenticate this subscription?
+    message: {
+      subscribe: withFilter(
+        () => pubsub.asyncIterator([MESSAGE]),
+        (payload, args) => (
+          (payload.receiverId === args.receiverId) && (payload.senderId === args.senderId)
+        ),
+      ),
+    },
   },
   Query: {
     getMessages: (parent, { receiverId, offset }, { user }) => {
@@ -28,13 +41,19 @@ const resolvers = {
     },
   },
   Mutation: {
-    createMessage: (parent, messageDetails, { user }) => {
+    createMessage: async (parent, messageDetails, { user }) => {
       isAuth(user);
       const messageController = new MessageController();
-      return messageController.createMessage({
+      const message = await messageController.createMessage({
         ...messageDetails,
         senderId: user.userId,
       });
+      pubsub.publish(MESSAGE, {
+        message,
+        senderId: message.dataValues.senderId,
+        receiverId: message.dataValues.receiverId,
+      });
+      return message;
     },
     updateMessage: (parent, messageDetails, { user }) => {
       isAuth(user);

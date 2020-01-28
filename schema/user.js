@@ -15,12 +15,17 @@ const typeDefs = gql`
     userId: Int!
   }
 
+  type Subscription {
+    typing(senderId: Int!, receiverId: Int!): Boolean!
+  }
+
   type Query {
     signin(email: String!, password: String!): AuthUser!
     getAuthUser: User!
   }
 
   type Mutation {
+    userTyping(senderId: Int!, receiverId: Int!): Boolean!
     signup(
       firstname: String!
       lastname: String! 
