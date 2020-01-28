@@ -1,4 +1,3 @@
-import moment from 'moment';
 import ContactController from '../controllers/contactController';
 import ProfileController from '../controllers/profileController';
 import { isAuth } from '../middleware/authentication';
@@ -8,13 +7,12 @@ const resolvers = {
     user: (parent, args, { user }) => {
       const { userOneId, userOne, userTwo } = parent;
       const userDetails = (user.userId === userOneId) ? userTwo : userOne;
-      const lastseen = moment(userDetails.lastseen, 'YYYY-MM-DD HH:mm:ss').format();
       return {
         id: userDetails.id,
         username: userDetails.username,
         firstname: userDetails.firstname,
         lastname: userDetails.lastname,
-        lastseen,
+        lastseen: userDetails.lastseen,
       };
     },
     profileImage: async (parent, args, { user }) => {

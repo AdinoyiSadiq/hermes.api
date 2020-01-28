@@ -1,4 +1,5 @@
 import express from 'express';
+import http from 'http';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import cors from 'cors';
@@ -20,9 +21,14 @@ app.use(auth);
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: ({ req }) => ({
-    user: req.user,
-  }),
+  context: async ({ req, connection }) => {
+    if (req) {
+      return { user: req.user };
+    }
+    if (connection) {
+      return connection.context;
+    }
+  },
   formatError: (err) => {
     if (!err.originalError) {
       return err;
@@ -37,10 +43,14 @@ server.applyMiddleware({ app });
 
 const port = process.env.PORT || 4000;
 
+const httpServer = http.createServer(app);
+server.installSubscriptionHandlers(httpServer);
+
 models.sequelize.sync().then(() => {
   if (!module.parent) {
-    app.listen(port, () => {
-      console.log(`🚀  Server ready at ${port}`);
+    httpServer.listen(port, () => {
+      console.log(`🚀 Server ready at http://localhost:${port}${server.graphqlPath}`);
+      console.log(`🚀 Subscriptions ready at ws://localhost:${port}${server.subscriptionsPath}`);
     });
   }
 });

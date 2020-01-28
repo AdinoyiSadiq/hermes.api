@@ -12,6 +12,10 @@ const typeDefs = gql`
     updatedAt: String!
   }
 
+  type Subscription {
+    message(senderId: Int!, receiverId: Int!): Message
+  }
+
   type Query {
     getMessages(offset: Int, receiverId: Int!): [Message]!
   }

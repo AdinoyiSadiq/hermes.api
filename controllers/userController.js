@@ -1,7 +1,6 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import moment from 'moment';
 import models from '../models';
 import ProfileController from './profileController';
 
@@ -21,15 +20,13 @@ class User {
       error.code = 401;
       throw error;
     }
-    // Note: Ensure that a Date type is created to handle lastseen for the user object
-    const lastseen = moment(user.lastseen, 'YYYY-MM-DD HH:mm:ss').format();
     return {
       id: user.id,
       username: user.username,
       firstname: user.firstname,
       lastname: user.lastname,
       email: user.email,
-      lastseen,
+      lastseen: user.lastseen,
     };
   }
 
