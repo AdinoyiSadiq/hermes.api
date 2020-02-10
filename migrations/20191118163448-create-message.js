@@ -11,6 +11,9 @@ module.exports = {
       text: {
         type: Sequelize.STRING
       },
+      image: {
+        type: Sequelize.STRING
+      },
       edited: {
         type: Sequelize.BOOLEAN
       },

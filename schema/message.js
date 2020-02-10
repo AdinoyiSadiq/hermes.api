@@ -4,6 +4,7 @@ const typeDefs = gql`
   type Message {
     id: Int!
     text: String!
+    image: String
     edited: Boolean
     sender: User!
     receiver: User
@@ -14,16 +15,17 @@ const typeDefs = gql`
 
   type Subscription {
     message(senderId: Int!, receiverId: Int!): Message
+    deletedMessage(senderId: Int!, receiverId: Int!): Message!
   }
 
   type Query {
-    getMessages(offset: Int, receiverId: Int!): [Message]!
+    getMessages(offset: Int, limit: Int, receiverId: Int!): [Message]!
   }
 
   type Mutation {
-    createMessage(text: String!, receiverId: Int, quoteId: Int): Message!
+    createMessage(text: String!, receiverId: Int, quoteId: Int, image: String): Message!
     updateMessage(text: String!, messageId: Int!): Message!
-    deleteMessage(messageId: Int!): Boolean!
+    deleteMessage(messageId: Int!): Message!
   }
 `;
 

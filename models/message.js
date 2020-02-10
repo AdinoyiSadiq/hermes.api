@@ -5,6 +5,9 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       min: 1,
     },
+    image: {
+      type: DataTypes.STRING,
+    },
     edited: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,

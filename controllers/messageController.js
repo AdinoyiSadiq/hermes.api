@@ -27,6 +27,7 @@ class Message {
     }
     const activeuserController = new ActiveUserController();
     await activeuserController.createActiveUser(senderId, receiverId);
+    // Note: deconstruct the newMessage object
     const message = await this.messageModel.create(newMessage);
     return message;
   }
@@ -60,7 +61,9 @@ class Message {
     return [message];
   }
 
-  async getMessages({ senderId, receiverId, offset }) {
+  async getMessages({
+    senderId, receiverId, offset, limit,
+  }) {
     const messages = await this.messageModel.findAll({
       where: {
         [Op.or]: [
@@ -82,7 +85,7 @@ class Message {
           },
         ],
       },
-      limit: 15,
+      limit: limit || 15,
       offset,
       order: [['createdAt', 'DESC']],
     });
@@ -102,7 +105,7 @@ class Message {
       throw error;
     }
     await message.destroy(messageId);
-    return true;
+    return message;
   }
 
   async getLastMessage({ userOneId, userTwoId }) {
