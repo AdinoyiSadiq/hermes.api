@@ -6,6 +6,7 @@ import { isAuth } from '../middleware/authentication';
 
 const pubsub = new PubSub();
 const MESSAGE = 'MESSAGE';
+const DELETE_MESSAGE = 'DELETE_MESSAGE';
 
 const resolvers = {
   Message: {
@@ -32,12 +33,23 @@ const resolvers = {
         ),
       ),
     },
+    deletedMessage: {
+      subscribe: withFilter(
+        () => pubsub.asyncIterator([DELETE_MESSAGE]),
+        (payload, args) => (
+          ((payload.receiverId === args.receiverId) && (payload.senderId === args.senderId))
+          || ((payload.senderId === args.receiverId) && (payload.receiverId === args.senderId))
+        ),
+      ),
+    },
   },
   Query: {
-    getMessages: (parent, { receiverId, offset }, { user }) => {
+    getMessages: (parent, { receiverId, offset, limit }, { user }) => {
       isAuth(user);
       const messageController = new MessageController();
-      return messageController.getMessages({ receiverId, senderId: user.userId, offset });
+      return messageController.getMessages({
+        receiverId, senderId: user.userId, offset, limit,
+      });
     },
   },
   Mutation: {
@@ -63,10 +75,19 @@ const resolvers = {
         userId: user.userId,
       });
     },
-    deleteMessage: (parent, { messageId }, { user }) => {
+    deleteMessage: async (parent, { messageId }, { user }) => {
       isAuth(user);
       const messageController = new MessageController();
-      return messageController.deleteMessage({ messageId, userId: user.userId });
+      const deletedMessage = await messageController.deleteMessage({
+        messageId,
+        userId: user.userId,
+      });
+      pubsub.publish(DELETE_MESSAGE, {
+        deletedMessage,
+        senderId: deletedMessage.dataValues.senderId,
+        receiverId: deletedMessage.dataValues.receiverId,
+      });
+      return deletedMessage;
     },
   },
 };
