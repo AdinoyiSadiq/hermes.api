@@ -38,16 +38,15 @@ describe('message controller', () => {
     expect(message.text).toEqual('This is the text');
 
     // update user message
-    const updatedMessage = await messageController.updateMessage({
-      text: 'This is the updated text',
-      messageId: message.id,
-      userId: userOneId
+    const updatedMessages = await messageController.updateMessages({
+      state: 'read',
+      messageIds: [message.id],
     });
-    expect(updatedMessage.text).toEqual('This is the updated text');
+    expect(updatedMessages[0].state).toEqual('read');
 
     // get user message
     const singleMessage = await messageController.getMessage({ messageId: message.id });
-    expect(singleMessage[0].text).toEqual('This is the updated text');
+    expect(singleMessage[0].text).toEqual('This is the text');
 
     // get list of user messages
     const messages = await messageController.getMessages({ 

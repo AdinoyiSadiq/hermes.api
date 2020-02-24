@@ -32,20 +32,14 @@ class Message {
     return message;
   }
 
-  async updateMessage(messageDetails) {
-    const { userId, messageId, text } = messageDetails;
-    const message = await this.messageModel.findOne({ where: { id: messageId } });
-    if (!message) {
-      const error = new Error('message was not found');
-      error.code = 404;
-      throw error;
-    }
-    if (message.senderId !== userId) {
-      const error = new Error('unable to update message of another user');
-      error.code = 422;
-      throw error;
-    }
-    return message.update({ text, edited: true });
+  async updateMessages(messageDetails) {
+    const { messageIds, state } = messageDetails;
+    await this.messageModel.update(
+      { state, edited: true },
+      { where: { id: messageIds } },
+    );
+    const updatedMessages = await this.messageModel.findAll({ where: { id: messageIds } });
+    return updatedMessages;
   }
 
   async getMessage({ messageId, quote }) {
@@ -62,9 +56,9 @@ class Message {
   }
 
   async getMessages({
-    senderId, receiverId, offset, limit,
+    senderId, receiverId, cursor, limit,
   }) {
-    const messages = await this.messageModel.findAll({
+    const options = {
       where: {
         [Op.or]: [
           {
@@ -86,10 +80,24 @@ class Message {
         ],
       },
       limit: limit || 15,
-      offset,
       order: [['createdAt', 'DESC']],
-    });
+    };
+
+    if (cursor) {
+      options.where.createdAt = {
+        [Op.lt]: new Date(new Date(parseInt(cursor, 10)) - 24 * 60 * 60 * 1000),
+      };
+    }
+
+    const messages = await this.messageModel.findAll(options);
     return messages;
+  }
+
+  async getUnreadMessages({ senderId, receiverId }) {
+    const messages = await this.messageModel.findAll({
+      where: { senderId, receiverId, state: 'sent' },
+    });
+    return messages.length;
   }
 
   async deleteMessage({ messageId, userId }) {

@@ -7,6 +7,7 @@ import { isAuth } from '../middleware/authentication';
 const pubsub = new PubSub();
 const MESSAGE = 'MESSAGE';
 const DELETE_MESSAGE = 'DELETE_MESSAGE';
+const UPDATE_MESSAGE = 'UPDATE_MESSAGE';
 
 const resolvers = {
   Message: {
@@ -42,13 +43,21 @@ const resolvers = {
         ),
       ),
     },
+    updatedMessages: {
+      subscribe: withFilter(
+        () => pubsub.asyncIterator([UPDATE_MESSAGE]),
+        (payload, args) => (
+          (payload.receiverId === args.receiverId) && (payload.senderId === args.senderId)
+        ),
+      ),
+    },
   },
   Query: {
-    getMessages: (parent, { receiverId, offset, limit }, { user }) => {
+    getMessages: (parent, { receiverId, cursor, limit }, { user }) => {
       isAuth(user);
       const messageController = new MessageController();
       return messageController.getMessages({
-        receiverId, senderId: user.userId, offset, limit,
+        receiverId, senderId: user.userId, cursor, limit,
       });
     },
   },
@@ -67,13 +76,21 @@ const resolvers = {
       });
       return message;
     },
-    updateMessage: (parent, messageDetails, { user }) => {
+    updateMessages: async (parent, messageDetails, { user }) => {
       isAuth(user);
       const messageController = new MessageController();
-      return messageController.updateMessage({
+      const updatedMessages = await messageController.updateMessages({
         ...messageDetails,
         userId: user.userId,
       });
+      if (updatedMessages.length) {
+        pubsub.publish(UPDATE_MESSAGE, {
+          updatedMessages,
+          senderId: updatedMessages[0].dataValues.senderId,
+          receiverId: updatedMessages[0].dataValues.receiverId,
+        });
+      }
+      return updatedMessages;
     },
     deleteMessage: async (parent, { messageId }, { user }) => {
       isAuth(user);

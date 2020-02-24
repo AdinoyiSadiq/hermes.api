@@ -8,6 +8,11 @@ module.exports = (sequelize, DataTypes) => {
     image: {
       type: DataTypes.STRING,
     },
+    state: {
+      type: DataTypes.ENUM,
+      values: ['sent', 'delivered', 'read'],
+      defaultValue: 'sent',
+    },
     edited: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
