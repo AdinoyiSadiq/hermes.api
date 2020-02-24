@@ -22,6 +22,14 @@ const resolvers = {
       const messageController = new MessageController();
       return messageController.getLastMessage({ userOneId, userTwoId });
     },
+    unreadMessages: (parent, args, { user }) => {
+      const { userOneId, userTwoId } = parent;
+      const usersDetails = (user.userId === userOneId) ? {
+        senderId: userTwoId, receiverId: userOneId,
+      } : { senderId: userOneId, receiverId: userTwoId };
+      const messageController = new MessageController();
+      return messageController.getUnreadMessages({ ...usersDetails });
+    },
   },
   Query: {
     getActiveUsers: (parent, args, { user }) => {

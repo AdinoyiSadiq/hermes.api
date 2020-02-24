@@ -6,6 +6,7 @@ const typeDefs = gql`
     user: User!
     profileImage: String
     lastMessage: Message
+    unreadMessages: Int
   }
 
   type Query {

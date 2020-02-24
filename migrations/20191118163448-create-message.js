@@ -14,6 +14,11 @@ module.exports = {
       image: {
         type: Sequelize.STRING
       },
+      state: {
+        type: Sequelize.ENUM,
+        values: ['sent', 'delivered', 'read'],
+        defaultValue: 'sent',
+      },
       edited: {
         type: Sequelize.BOOLEAN
       },
