@@ -83,16 +83,16 @@ class User {
     }
     const hashedPassword = await bcrypt.hash(userDetails.password, 12);
     const user = await this.userModel.create({
-      username: userDetails.username,
-      firstname: userDetails.firstname,
-      lastname: userDetails.lastname,
-      email: userDetails.email,
+      username: (userDetails.username).toString().toLowerCase(),
+      firstname: (userDetails.firstname).toString().toLowerCase(),
+      lastname: (userDetails.lastname).toString().toLowerCase(),
+      email: (userDetails.email).toString().toLowerCase(),
       password: hashedPassword,
     });
     if (user) {
       const profileController = new ProfileController();
       profileController.createProfile({
-        location: userDetails.location,
+        location: (userDetails.location).toString().toLowerCase(),
         userId: user.id,
       });
     }

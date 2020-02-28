@@ -16,6 +16,11 @@ class Message {
       error.code = 422;
       throw error;
     }
+    if (!newMessage.text && !newMessage.image) {
+      const error = new Error('message must include text or an image');
+      error.code = 422;
+      throw error;
+    }
     if (newMessage.quoteId) {
       const message = await this.messageModel.findOne({ where: { id: newMessage.quoteId } });
       if (!message) {
