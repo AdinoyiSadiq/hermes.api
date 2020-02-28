@@ -54,7 +54,7 @@ class User {
 
   async signin(userDetails) {
     const { email, password } = userDetails;
-    const user = await this.userModel.findOne({ where: { email } });
+    const user = await this.userModel.findOne({ where: { email: email.toString().toLowerCase() } });
 
     if (!user) {
       const error = new Error('the account with this email does not exist');
@@ -75,7 +75,11 @@ class User {
   }
 
   async signup(userDetails) {
-    const existingUser = await this.userModel.findOne({ where: { email: userDetails.email } });
+    const existingUser = await this.userModel.findOne({
+      where: {
+        email: userDetails.email.toString().toLowerCase(),
+      },
+    });
     if (existingUser) {
       const error = new Error('user with this email already exits');
       error.code = 409;
@@ -83,16 +87,17 @@ class User {
     }
     const hashedPassword = await bcrypt.hash(userDetails.password, 12);
     const user = await this.userModel.create({
-      username: userDetails.username,
-      firstname: userDetails.firstname,
-      lastname: userDetails.lastname,
-      email: userDetails.email,
+      username: (userDetails.username).toString().toLowerCase(),
+      firstname: (userDetails.firstname).toString().toLowerCase(),
+      lastname: (userDetails.lastname).toString().toLowerCase(),
+      email: userDetails.email.toString().toLowerCase(),
       password: hashedPassword,
     });
+
     if (user) {
       const profileController = new ProfileController();
       profileController.createProfile({
-        location: userDetails.location,
+        location: (userDetails.location).toString().toLowerCase(),
         userId: user.id,
       });
     }
