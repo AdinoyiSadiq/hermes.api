@@ -24,6 +24,16 @@ const resolvers = {
     },
   },
   Query: {
+    getSentContactRequests: (parent, args, { user }) => {
+      isAuth(user);
+      const contactController = new ContactController();
+      return contactController.getSentContactRequests({ userId: user.userId });
+    },
+    getReceivedContactRequests: (parent, args, { user }) => {
+      isAuth(user);
+      const contactController = new ContactController();
+      return contactController.getReceivedContactRequests({ userId: user.userId });
+    },
     getAllContacts: (parent, args, { user }) => {
       isAuth(user);
       const contactController = new ContactController();
@@ -33,6 +43,11 @@ const resolvers = {
       isAuth(user);
       const contactController = new ContactController();
       return contactController.getAllContacts({ userId: user.userId, status: 3 });
+    },
+    getRejectedContactRequests: (parent, args, { user }) => {
+      isAuth(user);
+      const contactController = new ContactController();
+      return contactController.getRejectedContactRequests({ userId: user.userId });
     },
     searchContacts: (parent, { searchTerm }, { user }) => {
       isAuth(user);
@@ -45,6 +60,11 @@ const resolvers = {
       isAuth(user);
       const contactController = new ContactController();
       return contactController.requestContact({ requesterId: user.userId, receiverId });
+    },
+    cancelContactRequest: (parent, { receiverId }, { user }) => {
+      isAuth(user);
+      const contactController = new ContactController();
+      return contactController.cancelContactRequest({ requesterId: user.userId, receiverId });
     },
     acceptContact: (parent, { requesterId }, { user }) => {
       isAuth(user);

@@ -15,12 +15,24 @@ const typeDefs = gql`
     userId: Int!
   }
 
+  type UserContactStatus {
+    status: Int
+    actionUserId: Int
+  }
+
+  type UserSearch {
+    user: User!
+    profileImage: String
+    contact: UserContactStatus
+  }
+
   type Subscription {
     typing(senderId: Int!, receiverId: Int!): Boolean!
   }
 
   type Query {
     signin(email: String!, password: String!): AuthUser!
+    searchUsers(searchTerm: String!): [UserSearch]!
     getAuthUser: User!
   }
 
