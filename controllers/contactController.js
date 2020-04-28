@@ -36,6 +36,33 @@ class Contact {
     return true;
   }
 
+  async cancelContactRequest({ requesterId, receiverId }) {
+    if (requesterId === receiverId) {
+      const error = new Error('requesterId and receiver Id cannot be the same');
+      error.code = 422;
+      throw error;
+    }
+
+    const contactRequest = await this.contactModel.findOne({
+      where: {
+        userOneId: requesterId,
+        userTwoId: receiverId,
+        status: {
+          [Op.or]: [0, 2],
+        },
+      },
+    });
+
+    if (!contactRequest) {
+      const error = new Error('the contact request was not found');
+      error.code = 404;
+      throw error;
+    }
+
+    await contactRequest.destroy(contactRequest.id);
+    return true;
+  }
+
   async acceptContact({ requesterId, receiverId }) {
     if (requesterId === receiverId) {
       const error = new Error('requesterId and receiver Id cannot be the same');
@@ -122,6 +149,108 @@ class Contact {
     return true;
   }
 
+  async getContact({ requesterId, receiverId }) {
+    const contact = await this.contactModel.findOne({
+      where: {
+        [Op.or]: [
+          {
+            userOneId: requesterId,
+            userTwoId: receiverId,
+          },
+          {
+            userOneId: receiverId,
+            userTwoId: requesterId,
+          },
+        ],
+      },
+    });
+    return { ...contact };
+  }
+
+  getSentContactRequests = async ({ userId }) => {
+    const user = await this.userModel.findOne({ where: { id: userId } });
+
+    if (!user) {
+      const error = new Error('the user does not exist');
+      error.code = 404;
+      throw error;
+    }
+
+    const contacts = await this.contactModel.findAll({
+      where: {
+        status: 0,
+        userOneId: userId,
+      },
+      include: [
+        {
+          model: this.userModel,
+          as: 'userOne',
+        },
+        {
+          model: this.userModel,
+          as: 'userTwo',
+        },
+      ],
+    });
+    return [...contacts];
+  }
+
+  getReceivedContactRequests = async ({ userId }) => {
+    const user = await this.userModel.findOne({ where: { id: userId } });
+
+    if (!user) {
+      const error = new Error('the user does not exist');
+      error.code = 404;
+      throw error;
+    }
+
+    const contacts = await this.contactModel.findAll({
+      where: {
+        status: 0,
+        userTwoId: userId,
+      },
+      include: [
+        {
+          model: this.userModel,
+          as: 'userOne',
+        },
+        {
+          model: this.userModel,
+          as: 'userTwo',
+        },
+      ],
+    });
+    return [...contacts];
+  }
+
+  getRejectedContactRequests = async ({ userId }) => {
+    const user = await this.userModel.findOne({ where: { id: userId } });
+
+    if (!user) {
+      const error = new Error('the user does not exist');
+      error.code = 404;
+      throw error;
+    }
+
+    const contacts = await this.contactModel.findAll({
+      where: {
+        status: 2,
+        userOneId: userId,
+      },
+      include: [
+        {
+          model: this.userModel,
+          as: 'userOne',
+        },
+        {
+          model: this.userModel,
+          as: 'userTwo',
+        },
+      ],
+    });
+    return [...contacts];
+  }
+
   async getAllContacts({ userId, status }) {
     const user = await this.userModel.findOne({ where: { id: userId } });
 
@@ -178,6 +307,7 @@ class Contact {
 
     const contacts = await this.contactModel.findAll({
       where: {
+        status: 1,
         [Op.or]: [
           {
             userTwoId: { [Op.eq]: userId },

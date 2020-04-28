@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { Op } from 'sequelize';
 import models from '../models';
 import ProfileController from './profileController';
 
@@ -9,6 +10,7 @@ dotenv.config();
 class User {
   constructor() {
     this.userModel = models.user;
+    this.contactModel = models.contact;
     this.profileModel = models.profile;
   }
 
@@ -50,6 +52,37 @@ class User {
     });
 
     return updatedUser;
+  }
+
+  async searchUsers({ userId, searchTerm }) {
+    const user = await this.userModel.findOne({ where: { id: userId } });
+
+    if (!user) {
+      const error = new Error('the user does not exist');
+      error.code = 404;
+      throw error;
+    }
+
+    if (!searchTerm) {
+      const error = new Error('please provide a search term');
+      error.code = 400;
+      throw error;
+    }
+
+    const users = await this.userModel.findAll({
+      limit: 20,
+      where: {
+        id: { [Op.ne]: userId },
+        [Op.or]: [
+          { username: { [Op.iLike]: `%${searchTerm}%` } },
+          models.Sequelize.where(models.Sequelize.fn('concat', models.Sequelize.col('firstname'), ' ', models.Sequelize.col('lastname')), {
+            [Op.iLike]: `%${searchTerm}%`,
+          }),
+        ],
+      },
+    });
+
+    return [...users];
   }
 
   async signin(userDetails) {

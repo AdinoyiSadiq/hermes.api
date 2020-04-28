@@ -4,6 +4,7 @@ const typeDefs = gql`
   type Contact {
     id: Int!
     status: Int!
+    actionUserId: Int!
     profileImage: String
     user: User!
   }
@@ -11,13 +12,17 @@ const typeDefs = gql`
   type Query {
     getAllContacts: [Contact]!
     getAllBlockedContacts: [Contact]!
+    getSentContactRequests: [Contact]!
+    getReceivedContactRequests: [Contact]!
+    getRejectedContactRequests: [Contact]!
     searchContacts(searchTerm: String!): [Contact]!
   }
 
   type Mutation {
     requestContact(receiverId: Int!): Boolean!
+    cancelContactRequest(receiverId: Int!): Boolean!
     acceptContact(requesterId: Int!): Boolean!
-    rejectContact(userId: Int!): Boolean!
+    rejectContact(requesterId: Int!): Boolean!
     blockContact(userId: Int!): Boolean!
   }
 `;
