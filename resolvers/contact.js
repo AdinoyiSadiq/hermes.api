@@ -1,6 +1,10 @@
+import { PubSub, withFilter } from 'apollo-server-express';
 import ContactController from '../controllers/contactController';
 import ProfileController from '../controllers/profileController';
 import { isAuth } from '../middleware/authentication';
+
+const pubsub = new PubSub();
+const ACCEPT_CONTACT = 'ACCEPT_CONTACT';
 
 const resolvers = {
   Contact: {
@@ -21,6 +25,16 @@ const resolvers = {
       const profileController = new ProfileController();
       const { profileImage } = await profileController.getProfileImage(userDetails.id);
       return profileImage;
+    },
+  },
+  Subscription: {
+    acceptedContact: {
+      subscribe: withFilter(
+        () => pubsub.asyncIterator([ACCEPT_CONTACT]),
+        (payload, args) => (
+          (payload.receiverId === args.receiverId) && (payload.requesterId === args.requesterId)
+        ),
+      ),
     },
   },
   Query: {
@@ -66,10 +80,18 @@ const resolvers = {
       const contactController = new ContactController();
       return contactController.cancelContactRequest({ requesterId: user.userId, receiverId });
     },
-    acceptContact: (parent, { requesterId }, { user }) => {
+    acceptContact: async (parent, { requesterId }, { user }) => {
       isAuth(user);
       const contactController = new ContactController();
-      return contactController.acceptContact({ requesterId, receiverId: user.userId });
+      const acceptContact = await contactController.acceptContact({
+        requesterId, receiverId: user.userId,
+      });
+      pubsub.publish(ACCEPT_CONTACT, {
+        requesterId,
+        receiverId: user.userId,
+        acceptedContact: true,
+      });
+      return acceptContact;
     },
     rejectContact: (parent, { requesterId }, { user }) => {
       isAuth(user);
