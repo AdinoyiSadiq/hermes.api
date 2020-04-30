@@ -9,6 +9,10 @@ const typeDefs = gql`
     user: User!
   }
 
+  type Subscription {
+    acceptedContact(requesterId: Int!, receiverId: Int!): Boolean!
+  }
+
   type Query {
     getAllContacts: [Contact]!
     getAllBlockedContacts: [Contact]!
